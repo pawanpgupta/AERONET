@@ -1,0 +1,114 @@
+# Read AERONET Time-Series
+
+The purpose of this code is to read AERONET data directly from AERONET's web services and to plot time-series graphs to
+visualize changes in Aerosol Optical Depth (AOD) or Angstrom Exponent parameters at specified AERONET sites. Different
+parameters can be specified by user such as site name, daily/monthly averages, data level, wavelength, time frame, etc.
+The output of the code is 3 plots: time-series graph, tile plot, and calendar plot. The regular time-series graph is
+recommended for short-term or medium-term time-series analyses. The recommended data size should be a few months (if using
+daily averages) or a few years (if using monthly averages). Anything more than that will produce a cluttered graph. The
+tile plot is used for medium to long-term time-series analysis (at least a couple of years, daily or monthly averages).
+The calendar plot is also for medium to long-term time-series analysis (daily data only), but it provides a more clear view
+of the individual days thanks to its calendar-like structure.
+
+The program was first deployed in July 2023 to assist in tracking the changes in AOD levels of AERONET sites in the eastern
+US and Canada, due to the Canadian wildfires. Users also have the opportunity to save and download output plots at the end.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+  - [Example 1](#example-1)
+  - [Example 2](#example-2)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Extra Features](#extra-features)
+- [Contributing](#contributing)
+
+## Getting Started
+
+### Prerequisites
+Running this code is straightforward. The only requirements are having the means to run a Python notebook file
+(.ipynb). This can be done either in Google Colab (recommended), if the user has a Google account. It can also 
+be done locally on Jupyter Notebook, which requires installation of Anaconda: https://www.anaconda.com/
+
+### Installation
+
+There is a list of libraries that need to be installed before running the code. Those include: beautifulsoup4, requests, 
+and calplot. All other libraries used are already installed on Google Colab/Anaconda by default. Note that the exclamation 
+point is not required when installing through the Anaconda command prompt.
+
+!pip install beautifulsoup4
+!pip install requests
+!pip install calplot
+
+The beautifulsoup4 package provides web scraping capabilities, where data from a webpage can be read into "soup" file that 
+can be later converted to a dataframe. The requests package is useful for sending HTTP requests using Python, in this case 
+to obtain URL of web data. The calplot package can be used to create calendar plots, which are a type of heatmap that displays
+time-series data over a conventional calendar year. Those plots are especially useful for long-term time series analysis.
+
+In addition to the packages discussed above, the code also makes use of libraries like shutil, numpy, math, datetime, pandas,
+matplotlib, and sklearn. The shutil library was used for creating zip files with the output. Array manipulation was performed
+with the numpy library, and time data manipulation was performed with the datetime library. The "math" library provides
+access to mathematical functions. The pandas library's purpose was to clean and aggregate data for analysis. Other plots such
+as tile plots and time series graphs were created with the matplotlib library. Finally, the sklearn framework was used to fit
+trendlines that are less prone to overfitting to extreme/outlier data than the Ordinary Least Squares method.
+
+## Usage
+
+Below are the two cells which require action from the user. The first cell prompts user to allow Google to mount their local
+drive onto the colab notebook. The user will need to allow access from the popup window that shows after running that cell. 
+It also imports the files library, which enables downloading the output files. After that, it creates a directory where the 
+output files are being stored.
+
+### Example 1
+
+from google.colab import files
+from google.colab import drive
+drive.mount('/drive')
+!mkdir Output_TimeSeries
+
+The second cell prompts the user for input. The list of parameters are name of site, initial and final dates of interest, 
+level of data, type of average (daily, hourly), feature choice (AOD or Angstrom exponent), AOD wavelength, and Angstrom 
+exponent parameter. Default values have been setup in case a user provides an invalid response. Warnings have been put in 
+place in case a user selects a timeframe that is possibly too large for the program to handle. If an URL cannot be generaed 
+from the web services, the user is promped to try again.
+
+### Example 2
+
+site = 'Alta_Floresta'                  #Make sure site name is spelled properly
+dt_initial = '20010101'                 #starting date YYYYMMDD format
+dt_final = '20230728'                   #final date YYYYMMDD format
+level = 1.5                             #AERONET data level
+average_type = 1                        #daily (1), monthly (2)
+feature_choice = 1                      #Enter '1' for AOD wavelength or '2' for Angstrom exponent parameter
+wavelength = 500                        #Available choices: 1640, 1020, 870, 865, 779, 675, 667, 620, 560, 555, 551, 532, 531, 510, 500, 490, 443, 440, 412, 400, 380, 340
+Angstrom_exp = '440-675'                #Available choices: '440-870','380-500','440-675','500-870','340-440','440-675'
+
+## How It Works
+
+The code initially takes some of the user input parameters from Example 2, and uses them in constructing a URL that resembles
+the real link that contains the data with those desired parameters. The URL is converted to a tuple to remove the commas, and
+an HTTP request is made from Google Colab to get the text from the real URL using the tuple. If there is a match with the URL,
+the beautiful soup package is used to scrape the information from the webpage. That information is saved as a text file and 
+then read as a Pandas dataframe. The first few rows are skipped so that only the data and headers remain. The dataframe is 
+aggregated and filtered according to the remainder of user input. The dates are converted to datetime format and set as the 
+dataframe's index. If monthly averages were selected, data is aggregated by period. Finally, the time series graphs, tile and
+calendar plots are displayed. The time series graph shows dates on x-axis and AOD/AE measurements on y-axis. The tile map
+represents a mosaic with year on y-axis and daily/monthly average on x-axis. The AOD/AE averages are displayed as a heatmap
+on the tile and calendar plots, with a colorbar that conveys the intensity to those measurements. Missing data is displayed 
+in white on those plots. The colorbars feature triangular extensions that denote extreme values. The user has the opportunity
+to run the code for different sites, so different graphs are generated for each site. If desired, the entire output is saved 
+in a zipped folder and then downloaded.
+
+## Extra Features
+
+An annual AOD variability plot is also displayed, but only if the daily average option is selected. The x-axis represents the year,
+while the y-axis is the site average AOD for each year. The standard deviation of each year AOD values were computed and
+also shown on the graph as the yellow shaded region. A linear trendline was then fitted to the data to show how AOD changes on
+average throughout the years.
+
+## Contributing
+The code is for demonstration purposes only. Users are responsible to check for accuracy and revise to fit their objective.
+Report any concern or question related to the code to pawan.gupta@nasa.gov or petar.grigorov@nasa.gov

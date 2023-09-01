@@ -1,0 +1,100 @@
+# Read and Map AERONET
+
+The purpose of this code is to read and map AERONET data directly from AERONET's web services. Such data includes
+Aerosol Optical Depth (AOD) measurements taken with different wavelengths, as well as Angstrom Exponent parameters. Different
+parameters can be specified by user such as geographical bounds, daily/hourly averages, wavelength, time frame, etc.
+The output of the code is geographical maps with circle markers and colorbar representing the average aerosol parameters 
+at a given day or hour. The main use of this tool is to track the movement and density of aerosols over time. This tool
+was first deployed in June 2023 in mapping the aerosols produced by the Canadian wildfires. Users also have the opportunity
+to save and download the output maps as an image file at the end.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+  - [Example 1](#example-1)
+  - [Example 2](#example-2)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Contributing](#contributing)
+
+## Getting Started
+
+### Prerequisites
+Running this code is straightforward. The only requirements are having the means to run a Python notebook file
+(.ipynb). This can be done either in Google Colab (recommended), if the user has a Google account. It can also 
+be done locally on Jupyter Notebook, which requires installation of Anaconda: https://www.anaconda.com/
+
+### Installation
+
+There is a list of libraries that need to be installed before running the code. Those include: cartopy, beautifulsoup4,
+shapely, requests, and geopandas. All other libraries used are already installed on Google Colab/Anaconda by default.
+Note that the exclamation point is not required when installing through Anaconda command prompt.
+
+!pip install cartopy
+!pip install --no-binary shapely shapely --force
+!pip install beautifulsoup4
+!pip install requests
+!pip install geopandas
+
+The Cartopy package is designed to make it easy to draw maps for data analysis and visualisation. The shapely package is 
+useful for manipulation of planar geometric objects in order to create different map projections. The two projections used
+by this tool are PlateCarree and Orthographic. The beautifulsoup4 package provides web scraping capabilities, where data
+from a webpage can be read into "soup" file that can be later converted to a dataframe. The requests package is useful for
+sending HTTP requests using Python, in this case to obtain URL of web data. The geopandas package is designed much like the
+regular pandas package, but tailored specifically to process and analyze geospatial data.
+
+In addition to the packages discussed above, the code also makes use of libraries like shutil, numpy, datetime and matplotlib.
+The shutil library was used for creating zip files with the output. Array manipulation was performed with the numpy library, 
+and time data manipulation was performed with the datetime library. Finally matplotlib was used for creating plots.
+
+## Usage
+
+Below are the two cells which require action from the user. The first cell prompts user to allow Google to mount their local
+drive onto the colab notebook. The user will need to allow access from the popup window that shows after running that cell. 
+It also imports the files library, which enables downloading the output files. After that, it creates a directory where the 
+output files are being stored.
+
+### Example 1
+
+from google.colab import files
+from google.colab import drive
+drive.mount('/drive')
+!mkdir Output
+
+The second cell prompts the user for input. The list of parameters are initial and final dates of interest, level of data,
+type of average (daily, hourly or overall site averages), colorbar visual bounds, feature choice (AOD or Angstrom exponent), 
+AOD wavelength, Angstrom exponent parameter, and geographical bounds. Default values have been setup in case a user provides
+an invalid response. Warnings have been put in place in case a user selects a timeframe that is possibly too large for the 
+program to handle. If an URL cannot be generaed from the web services, the user is promped to try again.
+
+### Example 2
+
+dt_initial = '20230626'
+dt_final = '20230702'
+level = 1.5
+average_type = 1
+vis_min = 0.0
+vis_max = 1.0
+feature_choice = 1
+wavelength = 500
+Angstrom_exp = '440-675'
+long_west,long_east = -135,-65
+lat_south,lat_north = 23,53
+
+## How It Works
+
+The code initially takes some of the user input parameters from Example 2, and uses them in constructing a URL that resembles
+the real link that contains the data with those desired parameters. The URL is converted to a tuple to remove the commas, and
+an HTTP request is made from Google Colab to get the text from the real URL using the tuple. If there is a match with the URL,
+the beautiful soup package is used to scrape the information from the webpage. That information is saved as a text file and 
+then read as a Pandas dataframe. The first few rows are skipped so that only the data and headers remain. The dataframe is 
+aggregated and filtered according to the remainder of user input. Finally, the dates and/or hours are converted to datetime
+format and set as the dataframe's index. Cartopy and Geopandas are then used to create a map and colorbar that plots the 
+results on a map in the two different projections.
+
+## Contributing
+The code is for demonstration purposes only. Users are responsible to check for accuracy and revise to fit their objective.
+Report any concern or question related to the code to pawan.gupta@nasa.gov or petar.grigorov@nasa.gov

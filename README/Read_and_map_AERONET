@@ -1,10 +1,11 @@
-# Read and Map AERONET
+# Read and Map AERONET (AOD and INV)
 
-The purpose of this code is to read and map AERONET data directly from AERONET's web services. Such data includes
-Aerosol Optical Depth (AOD) measurements taken with different wavelengths, as well as Angstrom Exponent parameters. Different
-parameters can be specified by user such as geographical bounds, daily/hourly averages, wavelength, time frame, etc.
-The output of the code is geographical maps with circle markers and colorbar representing the average aerosol parameters 
-at a given day or hour. The main use of this tool is to track the movement and density of aerosols over time. This tool
+The purpose of these code is to read and map AERONET data directly from AERONET's web services. Such data includes
+Aerosol Optical Depth (AOD) measurements taken with different wavelengths, as well as Angstrom Exponent parameters. Eventually,
+inversion products such as Single Scattering Albedo, AOD Coincident Inputs, AOD Extinctions and Absorptions were introduced.
+Different parameters can be specified by user such as geographical bounds, daily/hourly averages, wavelength, time frame, etc.
+The output of the code is geographical maps with circle markers and colorbar representing the average daily or hourly values of 
+the products. The main use of this tool is to track the movement and density of aerosols over time. This tool
 was first deployed in June 2023 in mapping the aerosols produced by the Canadian wildfires. Users also have the opportunity
 to save and download the output maps as an image file at the end.
 
